@@ -1,7 +1,8 @@
-;; PantherX OS Server Configuration
+;; PantherX OS Server Configuration with XFCE Desktop Environment
 
 (use-modules (gnu)
              (gnu system)
+             (gnu services desktop)
              (px system config))
 
 (define %ssh-public-key
@@ -33,7 +34,13 @@
                 (supplementary-groups '("wheel"
                                         "audio" "video"))
                 (home-directory "/home/panther"))
-               %base-user-accounts)))
+               %base-user-accounts))
+
+  (packages (cons* %px-desktop-packages-gtk))
+
+  (services (cons*
+      (service xfce-desktop-service-type)
+  %px-desktop-services)))
 
  #:open-ports '(("tcp" "ssh"))
  #:authorized-keys `(("root" ,(plain-file "panther.pub" %ssh-public-key))))
