@@ -2,22 +2,6 @@
 
 (use-modules (gnu)
              (gnu system)
-             ;;
-             (guix packages)
-             (guix git-download)
-             (guix build-system meson)
-             (gnu packages wm)
-             (gnu packages freedesktop)
-             (gnu packages gtk)
-             (gnu packages web)
-             (gnu packages xorg)
-             (gnu packages xdisorg)
-             (gnu packages pcre)
-             (gnu packages linux)
-             (gnu packages gl)
-             (gnu packages pkg-config)
-             (gnu packages man)
-             ;;
              (px system config))
 
 (define %ssh-public-key
