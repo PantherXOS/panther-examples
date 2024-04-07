@@ -23,60 +23,6 @@
 (define %ssh-public-key
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP7gcLZzs2JiEx2kWCc8lTHOC0Gqpgcudv0QVJ4QydPg franz")
 
-;; Sway 1.9 is not compatible with wlroots 0.16
-(define-public sway-legacy
-  (package
-    (inherit sway)
-    (name "sway")
-    (version "1.8.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/swaywm/sway")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1y7brfrsjnm9gksijgnr6zxqiqvn06mdiwsk5j87ggmxazxd66av"))))
-    (build-system meson-build-system)
-    (arguments
-     `(;; elogind is propagated by wlroots -> libseat
-       ;; and would otherwise shadow basu.
-       #:configure-flags '("-Dsd-bus-provider=basu")
-       #:phases
-       (modify-phases %standard-phases
-         (add-before 'configure 'hardcode-paths
-           (lambda* (#:key inputs #:allow-other-keys)
-             ;; Hardcode path to swaybg.
-             (substitute* "sway/config.c"
-               (("strdup..swaybg..")
-                (string-append "strdup(\"" (assoc-ref inputs "swaybg")
-                               "/bin/swaybg\")")))
-             ;; Hardcode path to scdoc.
-             (substitute* "meson.build"
-               (("scdoc.get_pkgconfig_variable..scdoc..")
-                (string-append "'" (assoc-ref inputs "scdoc")
-                               "/bin/scdoc'")))
-             #t)))))
-    (inputs (list basu
-                  cairo
-                  gdk-pixbuf
-                  json-c
-                  libevdev
-                  libinput-minimal
-                  libxkbcommon
-                  pango
-                  pcre2
-                  swaybg
-                  wayland
-                  wlroots-0.16))
-    (native-inputs
-     (cons* linux-pam mesa pkg-config scdoc wayland-protocols
-            (if (%current-target-system)
-              (list pkg-config-for-build
-                    wayland)
-              '())))))
-
 (px-desktop-os
  (operating-system
   (host-name "px-base")
@@ -117,11 +63,7 @@
                  (terminal-vt "1")
                  (terminal-switch #t)
                  (default-session-command
-                            (greetd-wlgreet-sway-session
-                             (sway sway-legacy)
-                             (wlgreet-session
-                              (greetd-wlgreet-session
-                               (command (file-append sway-legacy "/bin/sway")))))))
+                            (greetd-wlgreet-sway-session)))
 
                 (greetd-terminal-configuration
                  (terminal-vt "2"))
